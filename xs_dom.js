@@ -51,6 +51,7 @@ var scrollStop = function (startcb, stopcb) {
 
     window.addEventListener('touchstart', function (event)  {touching = true}, false)
     window.addEventListener('touchend', function (event)    {touching = false; scrollCheck()}, false)
+    window.addEventListener('touchcancel', function (event) {touching = false; scrollCheck()}, false)
     window.addEventListener('mousedown', function (event)   {mousing = true}, false)
     window.addEventListener('mouseup', function (event)     {mousing = false; scrollCheck()}, false)
 
@@ -82,16 +83,17 @@ var scrollStop = function (startcb, stopcb) {
 function inViewportPercent (element, coverage) {
     coverage = coverage || 0.1
 
-    const { top, right, bottom, left, width, height } = element.getBoundingClientRect();
+    var eb  = element.getBoundingClientRect();
 
     const intersection = {
-        l: Math.max(left,   window.innerWidth*coverage),
-        t: Math.max(top,    window.innerHeight*coverage),
-        r: Math.min(right,  window.innerWidth*(1-coverage)),
-        b: Math.min(bottom, window.innerHeight*(1-coverage))
+        l: Math.max(eb.left,   window.innerWidth*coverage),
+        t: Math.max(eb.top,    window.innerHeight*coverage),
+        r: Math.min(eb.right,  window.innerWidth*(1-coverage)),
+        b: Math.min(eb.bottom, window.innerHeight*(1-coverage))
     };
 
-    return (intersection.b-intersection.t)/height*(intersection.r-intersection.l)/width
+    if (intersection.r<intersection.l || intersection.b<intersection.t) return 0
+    return (intersection.b-intersection.t)/eb.height*(intersection.r-intersection.l)/eb.width
 }
 
 /*!
