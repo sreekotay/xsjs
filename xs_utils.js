@@ -98,7 +98,7 @@ function date2html (now) {
     return ihtml
 }
 
-var findKey = function(obj, value) {
+var xs_findKey = function(obj, value) {
     for (var prop in obj) {
         if (obj.hasOwnProperty(prop)) {
             if (obj[prop] === value) 
