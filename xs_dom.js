@@ -79,15 +79,16 @@ var scrollStop = function (startcb, stopcb) {
 
 
 // how much of an element is inview?
-function inViewportPercent (element) {
+function inViewportPercent (element, coverage) {
+    coverage = coverage || 0.1
 
     const { top, right, bottom, left, width, height } = element.getBoundingClientRect();
 
     const intersection = {
-        l: Math.max(left,0),
-        t: Math.max(top,0),
-        r: Math.min(right, window.innerWidth),
-        b: Math.min(bottom, window.innerHeight)
+        l: Math.max(left,   window.innerWidth*coverage),
+        t: Math.max(top     window.innerHeight*coverage),
+        r: Math.min(right,  window.innerWidth*(1-coverage),
+        b: Math.min(bottom, window.innerHeight*(1-coverage))
     };
 
     return (intersection.b-intersection.t)/height*(intersection.r-intersection.l)/width
