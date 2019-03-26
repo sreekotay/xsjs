@@ -87,7 +87,7 @@ function inViewportPercent (element, coverage) {
     const intersection = {
         l: Math.max(left,   window.innerWidth*coverage),
         t: Math.max(top,    window.innerHeight*coverage),
-        r: Math.min(right,  window.innerWidth*(1-coverage),
+        r: Math.min(right,  window.innerWidth*(1-coverage)),
         b: Math.min(bottom, window.innerHeight*(1-coverage))
     };
 
