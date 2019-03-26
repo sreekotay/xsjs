@@ -1,6 +1,15 @@
 // =====================================================================
 // Utility functions
 // =====================================================================
+function chaincallBacks(n,p) {
+    if (!p) return n
+    return function () {
+        if (p) p.apply(null, arguments)
+        n.apply(null, arguments)
+    }
+}
+
+
 function xs_multiCallback (names, func) {
     function removeMe(n) {
         var index = names.indexOf(n)
@@ -10,8 +19,10 @@ function xs_multiCallback (names, func) {
     }
     for (var i in names) {
         var n = names[i]
-        var f = window[n] 
-        window[n] = function(n, f) {return function() {removeMe(n); if (f) f()}} (n);
+        window[n] = chaincallBacks(function (n) {
+                        return function() {removeMe(n);}
+                    }(n), window[n])
+        
     }
 }
 Number.prototype.pad = function(n) {
@@ -96,17 +107,6 @@ function date2html (now) {
         sec.pad(2) + colstr +
         milli;
     return ihtml
-}
-
-var xs_getKey = function(obj, value) {
-    for (var prop in obj) {
-        if (obj.hasOwnProperty(prop)) {
-            if (obj[prop] === value) 
-                return prop;
-        }
-    }
-
-    return null;
 }
 
 function xs_getPageParameter (parameterstring, name) {
