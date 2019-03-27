@@ -252,3 +252,56 @@ function accuServer () {
     ac.forceSync();  
     return ac
 }
+
+
+// =====================================================================
+// accuServer Commands
+// =====================================================================
+var xs_accuCommands = []
+function xs_accuPush(data, when) {
+    var last = xs_accuCommands.length-1
+    data.when = when || data.when || xs_accuServer.when()
+    xs_accuCommands.push(data)
+
+    //sort if necessary
+    if (last>=0 && xs_accuCommands[last].when<=data.when) return; 
+    xs_accuCommands.sort (function (a,b) {
+        return a.when - b.when
+    })
+}
+
+function xs_accuPop(when) {
+    var shift_av = xs_accuServer.shift_av()
+    when = (when || xs_accuServer.when()) + 3 //bias
+    while (xs_accuCommands.length && when+(xs_accuCommands[0].type=='av' ? shift_av : 0)>=xs_accuCommands[0].when)
+        return xs_accuCommands.shift()
+    return null
+}
+
+function xs_accuExec(data) {
+    var tc = xs_accuCommands [data.target] =  xs_accuCommands [data.target] || {}
+    if (!tc[data.method]) {
+        console.error('missing command: ' + data.method);
+        return false
+    }
+    tc[data.method].func.call (tc[data.method].thisObj, data) //run it
+    return true
+}
+
+function xs_accuRegister(target, method, thisObj, func) {
+    var tc = xs_accuCommands [target] =  xs_accuCommands [target] || {}
+    if (!tc) return false
+    tc[method]= {
+        thisObj: thisObj,
+        func: func
+    }
+    return true
+}
+
+
+
+// =====================================================================
+// instantiate
+// =====================================================================
+var xs_accuServer = accuServer() //create instance
+
