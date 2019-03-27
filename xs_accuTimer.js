@@ -56,7 +56,7 @@ function accuServer () {
         diff: 0,
         diffBase: 0,
         retries: 0,
-        shift: 0,
+        shift: -33.3,
         extra_av:  -141.7
     }
 
@@ -64,10 +64,12 @@ function accuServer () {
 
     switch (browserType) {
         case 'Android':
-        case 'iOS':
-            ac.shift = 0//16.7
             ac.extra_av = 0
-        break;
+            break;
+        case 'iOS':
+            ac.shift = 0
+            ac.extra_av = 0
+            break;
     }
 
     ac.shift_av = function () {
