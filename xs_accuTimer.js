@@ -81,9 +81,6 @@ function accuServer () {
         else ac.extra_av+=delta
         ac.diff = ac.diffBase + ac.shift
         xs_cookie(av_key, ac.extra_av, 2147483647);
-        if (youtubePlayer.playerState==YT.playerState.PLAYING) {
-            
-        }
     }
 
     ac.date = function(av) {
@@ -234,7 +231,7 @@ function accuServer () {
                     } else {
                         console.log ("attempts [" + timeDiffArr + "]\n[completed sync] retries: " + retryCount )
                         console.log ("[completed sync] delta: " + timeDiff)
-                        if (window.onTimerReady) window.onTimerReady()
+                        if (window.onAccuServerReady) window.onAccuServerReady()
                         done = true
                     }
                     if (1) {                    

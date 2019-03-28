@@ -49,14 +49,17 @@ var scrollStop = function (startcb, stopcb) {
 	// Setup scrolling variable
 	var isScrolling, touching, mousing;
 
+    /*
     window.addEventListener('touchstart', function (event)  {touching = true}, false)
     window.addEventListener('touchend', function (event)    {touching = false; scrollCheck()}, false)
     window.addEventListener('touchcancel', function (event) {touching = false; scrollCheck()}, false)
+    */
     window.addEventListener('mousedown', function (event)   {mousing = true}, false)
     window.addEventListener('mouseup', function (event)     {mousing = false; scrollCheck()}, false)
 
 	// Listen for scroll events
 	window.addEventListener('scroll', scrollCheck, false)
+	window.addEventListener('touchmove', scrollCheck, false)
 
     function scrollCheck() {
         if (!isScrolling && startcb) startcb()
@@ -72,7 +75,7 @@ var scrollStop = function (startcb, stopcb) {
             if (stopcb) stopcb();
             isScrolling = null
 
-		}, 66);
+		}, 300);
        
     }   
    
