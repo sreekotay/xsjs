@@ -7,24 +7,27 @@ function accuTimer(timer, repeatArgument, callbackArgument){
   var timeStart
 
   var init = function (t) {
+    if (t<=0) 
+        debugger;
     var timeLast = window.performance.now ?  window.performance.now() :  new Date().getTime();
     if (counter==1) timeStart = timeLast
     setTimeout(function () {
-      if (counter) {
-        if (!started && callbackArgument) callbackArgument(false);
-        started = true
-        var curTime = window.performance.now ?  window.performance.now() : new Date().getTime()
-        var fix = (curTime - timeStart)%timer;
+        if (counter) {
+            if (!started && callbackArgument) callbackArgument(false);
+            started = true
+            var curTime = window.performance.now ?  window.performance.now() : new Date().getTime()
+            var fix = (curTime - timeStart)%timer;
+            if (fix<0) fix -= fix
 
-        counter++
-        init(t - fix); //multiply the error to try and compensate?
-        repeatArgument((curTime - timeLast)>timer);
-        
-      } else {
-      // event to be executed at animation end
-        if (started && callbackArgument) callbackArgument(true);
-        started = false
-      }
+            counter++
+            init(timer - fix); //multiply the error to try and compensate?
+            repeatArgument((curTime - timeLast)>timer);
+            
+        } else {
+        // event to be executed at animation end
+            if (started && callbackArgument) callbackArgument(true);
+            started = false
+        }
     }, t);
   }
   
@@ -60,7 +63,7 @@ function accuServer () {
         extra_av:  -141.7
     }
 
-    var av_key = 'local-av-offset-v4'
+    var av_key = 'local-av-offset-v5'
 
     switch (browserType) {
         case 'Android':
@@ -78,7 +81,7 @@ function accuServer () {
 
     ac.adjustTime = function (delta, doShift)  {
         if (doShift) ac.shift+=delta 
-        else ac.extra_av+=delta
+        else ac.extra_av+=delta 
         ac.diff = ac.diffBase + ac.shift
         xs_cookie(av_key, ac.extra_av, 2147483647);
     }
