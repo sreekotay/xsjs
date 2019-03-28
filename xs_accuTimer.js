@@ -60,7 +60,7 @@ function accuServer () {
         extra_av:  -141.7
     }
 
-    var av_key = 'local-av-offset-v3'
+    var av_key = 'local-av-offset-v4'
 
     switch (browserType) {
         case 'Android':
