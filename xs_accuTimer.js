@@ -60,10 +60,10 @@ function accuServer () {
         diffBase: 0,
         retries: 0,
         shift: -33.3,
-        extra_av:  -141.7
+        extra_av: 0
     }
 
-    var av_key = 'local-av-offset-v5'
+    var av_key = 'local-av-offset-v6'
 
     switch (browserType) {
         case 'Android':
@@ -93,7 +93,7 @@ function accuServer () {
 
     ac.when = function(av) {
         var client_ms = window.performance.now ? window.performance.timing.navigationStart + window.performance.now() : (new Date()).getTime()
-        return client_ms + ac.diffBase + (av ? ac.extra_av : ac.shift)
+        return client_ms + ac.diffBase - (av ? ac.extra_av : ac.shift)
     }
    
 
