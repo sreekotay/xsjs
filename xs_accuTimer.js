@@ -2,25 +2,24 @@
 // accuTimer
 // =====================================================================
 function accuTimer(timer, repeatArgument, callbackArgument){
-  var counter = 1;
-  var started = false;
-  var timeStart
-
-  var init = function (t) {
+    var counter = 1;
+    var started = false;
+    var timeStart
+/*
+    var init = function (t) {
     if (t<=0) 
         debugger;
     var timeLast = window.performance.now ?  window.performance.now() :  new Date().getTime();
     if (counter==1) timeStart = timeLast
     setTimeout(function () {
-        if (counter) {
+        if (!stopped) {
             if (!started && callbackArgument) callbackArgument(false);
             started = true
             var curTime = window.performance.now ?  window.performance.now() : new Date().getTime()
-            var fix = (curTime - timeStart)%timer;
-            if (fix<0) fix -= fix
+            var fix = (curTime - timeStart) - timer;
 
             counter++
-            init(timer - fix); //multiply the error to try and compensate?
+            init(t - fix); //multiply the error to try and compensate?
             repeatArgument((curTime - timeLast)>timer);
             
         } else {
@@ -30,14 +29,38 @@ function accuTimer(timer, repeatArgument, callbackArgument){
         }
     }, t);
   }
-  
-  var o = {
-      start:    function ()  {counter=1; init(timer)},
-      stop:     function()   {counter=0;},
-      counter:  function()   {return counter}
-  }
-  o.start()
-  return o
+*/
+
+    var counter, stopped
+
+    var init = (t) => {
+        let timeStart = window.performance.now ?  window.performance.now() :  new Date().getTime();
+        setTimeout(function () {
+            if (!stopped) {
+
+                let fix =window.performance.now ?  window.performance.now() : new Date().getTime()
+                fix = (fix - timeStart) - timer;
+                init(t - fix);
+                counter++;
+                started = true
+                
+                // event to be repeated max times
+                repeatArgument();
+            
+            } else {
+                // event to be executed at animation end
+                callbackArgument();
+                started = false
+            }
+        }, t);
+    }
+    var o = {
+        start:    function ()  {counter=1; stopped=false; init(timer)},
+        stop:     function()   {stopped = true},
+        counter:  function()   {return counter}
+    }
+    o.start()
+    return o
 }
 
 
@@ -60,7 +83,7 @@ function accuServer () {
         diffBase: 0,
         retries: 0,
         shift: -33.3,
-        extra_av: 0
+        extra_av: -141.7
     }
 
     var av_key = 'local-av-offset-v6'
@@ -273,9 +296,8 @@ function xs_accuPush(data, when) {
 }
 
 function xs_accuPop(when) {
-    var shift_av = xs_accuServer.shift_av()
     when = (when || xs_accuServer.when()) + 3 //bias
-    while (xs_accuCommands.length && when+(xs_accuCommands[0].type=='av' ? shift_av : 0)>=xs_accuCommands[0].when)
+    while (xs_accuCommands.length && when>=xs_accuCommands[0].when)
         return xs_accuCommands.shift()
     return null
 }
