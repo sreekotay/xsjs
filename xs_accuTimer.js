@@ -49,7 +49,7 @@ function accuTimer(timer, repeatArgument, callbackArgument){
             
             } else {
                 // event to be executed at animation end
-                callbackArgument();
+                if (callbackArgument) callbackArgument();
                 started = false
             }
         }, t);
