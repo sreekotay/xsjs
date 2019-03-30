@@ -25,8 +25,8 @@ var xs_getKey = function(obj, value) { //find key give value
 
     return null;
 }
-Object.prototype.xs_get = xs_get
-Object.prototype.xs_getKey = xs_getKey
+//Object.prototype.xs_get = xs_get
+//Object.prototype.xs_getKey = xs_getKey
 
 
 
