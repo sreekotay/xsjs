@@ -14,7 +14,7 @@ function xs_get (obj, path, access) { //get "dotted" path (access is an optional
 }
 
 
-var xs_getKey = function(obj, value) { //find key give value
+function xs_keyOf (obj, value) { //find key give value
     if (this!=window) {value=obj; obj=this; }
     for (var prop in obj) {
         if (obj.hasOwnProperty(prop)) {
@@ -25,8 +25,17 @@ var xs_getKey = function(obj, value) { //find key give value
 
     return null;
 }
-//Object.prototype.xs_get = xs_get
-//Object.prototype.xs_getKey = xs_getKey
+
+function  xs_extendObject(prop, value) {
+    Object.defineProperty(Object.prototype, prop,{
+        value:value,
+        writable: false,
+        configurable: true,
+        enumerable: false
+      });
+}
+xs_extendObject ('xs_get', xs_get)
+xs_extendObject ('xs_keyOf', xs_keyOf)
 
 
 

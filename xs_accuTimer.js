@@ -49,7 +49,7 @@ function accuTimer(timer, repeatArgument, callbackArgument){
             
             } else {
                 // event to be executed at animation end
-                if (callbackArgument) callbackArgument();
+                if (callbackArgument)   callbackArgument();
                 started = false
             }
         }, t);
@@ -82,7 +82,7 @@ function accuServer () {
         diff: 0,
         diffBase: 0,
         retries: 0,
-        shift: -33.3,
+        shift: 33.3,
         extra_av: -141.7
     }
 
