@@ -76,13 +76,35 @@ function xs_cookie(cname, cvalue, exMS) {
     return "";
 }
 
+    
+var xs_wake_timeout = 5000;
+var xs_wake_lastTime = Date.now();
+var xs_wake_callbacks = [];
+
+setInterval(function() {
+    var currentTime = Date.now();
+    if (currentTime > (xs_wake_lastTime + xs_wake_timeout + 2000)) {
+        xs_wake_callbacks.forEach(function (fn) {
+            fn();
+        });
+    }
+    xs_wake_lastTime = currentTime;
+}, xs_wake_timeout)
+
+function xs_wakecb(fn) {xs_wake_callbacks.push(fn)}
+
 
 function ms2html (now) {
+    var neg
+    if (now<0) {
+        now = -now
+        neg = true
+    }
     var milli = (now%1000)|0,
         sec = ((now%60000)/1000)|0,
         min = (now/60000)|0;
     var colstr = "<span style='opacity:0.8'>:</span>"
-    var ihtml = '' +
+    var ihtml = (neg?'-':'') +
         min.pad(2) + colstr +
         sec.pad(2) + colstr +
         milli.pad().padStart(3, '0');
