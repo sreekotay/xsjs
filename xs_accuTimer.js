@@ -82,41 +82,19 @@ function accuServer () {
         diff: 0,
         diffBase: 0,
         retries: 0,
-        shift: 33.3,
-        extra_av: -141.7
+        shift: 0
     }
 
-    var av_key = 'local-av-offset-v6'
 
-    switch (browserType) {
-        case 'Android':
-            ac.extra_av = 0
-            break;
-        case 'iOS':
-            ac.shift = 0
-            ac.extra_av = 0
-            break;
-    }
 
-    ac.shift_av = function () {
-        return ac.extra_av-ac.shift
-    }
-
-    ac.adjustTime = function (delta, doShift)  {
-        if (doShift) ac.shift+=delta 
-        else ac.extra_av+=delta 
-        ac.diff = ac.diffBase + ac.shift
-        xs_cookie(av_key, ac.extra_av, 2147483647);
-    }
-
-    ac.date = function(av) {
+    ac.date = function() {
         var client_ms = window.performance.now ? window.performance.timing.navigationStart + window.performance.now() : (new Date()).getTime()
-        return new Date(client_ms + ac.diffBase + (av ? ac.extra_av : ac.shift))
+        return new Date(client_ms + ac.diffBase + ac.shift)
     }
 
-    ac.when = function(av) {
+    ac.when = function() {
         var client_ms = window.performance.now ? window.performance.timing.navigationStart + window.performance.now() : (new Date()).getTime()
-        return client_ms + ac.diffBase - (av ? ac.extra_av : ac.shift)
+        return client_ms + ac.diffBase + ac.shift
     }
    
 
@@ -132,9 +110,6 @@ function accuServer () {
         var runningNarrow = 0;
         var runningMax = 10;
         var timeDiff = 0, timeDiffArr = []
-
-        var eav = xs_cookie(av_key);
-        if(eav || eav!=="") ac.extra_av = +eav
 
        
         // read stored

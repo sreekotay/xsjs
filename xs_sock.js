@@ -16,6 +16,7 @@
 //  
 // =====================================================================
 var xs_sockCommands = []
+var xs_sockCommandLock = {}
 function xs_sockPush(data, when) {
     var last = xs_sockCommands.length-1
     data.when = when || data.when || 0
@@ -82,12 +83,10 @@ function xs_sockVerify(force) {
             document.dispatchEvent(new CustomEvent('xs_sock'), {detail:{msg:'error'}})
             };
         xs_sock.onmessage = function(evt) {
-            //console.log("A spanner has been updated. Please refresh the page to see changes.");
             var data = evt.data
             try {
                 data = JSON.parse(data)
             } catch (err) {}
-            console.log('==>',data);
 
             if (data.target=='page') {
                 switch (data.method) {
@@ -95,6 +94,26 @@ function xs_sockVerify(force) {
                 }
                 return;
             }
+            if (data.exclusive) {
+                var exkey = data.method+(data.guid||'')
+                var key = xs_sockCommandLock[exkey]
+                if (key && key.exclusive > data.when) { //is exclusive greater than when?
+                    if (key.priority || data.priority) { //does either have a priority?
+                        if (key.priority > (data.priority||0)) //is current priority greater?
+                            return;
+                        var idx = xs_sockCommands.findIndex(key) //replace the command
+                        if (idx>=0) {
+                            console.log('REPLACED === ',data);
+                            xs_sockCommands[idx] = data
+                        } else console.error ("exclusive-priority command not found - ", key)
+                        return
+                    }    
+                    return
+                }
+                xs_sockCommandLock[exkey] = data    
+            }
+            console.log('==>',data);
+
             xs_sockPush(data)
         }
     }
