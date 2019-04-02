@@ -1,5 +1,19 @@
 // =====================================================================
 // Utility functions
+//
+//     functions:
+//      xs_GUIDGen()
+//      xs_multiCallback(names, func)
+//      xs_cookie(cname, cvalue, exMS) 
+//      xs_getURLParameter (name)
+//      xs_browserType: 'iOS'|'Android'|'unknown'
+//
+//     events:   
+//      xs_wake:  detail{delta:1000}
+//  
+// =====================================================================
+// =====================================================================
+// Utility functions
 // =====================================================================
 function chaincallBacks(n,p) {
     if (!p) return n
@@ -79,19 +93,20 @@ function xs_cookie(cname, cvalue, exMS) {
     
 var xs_wake_timeout = 5000;
 var xs_wake_lastTime = Date.now();
-var xs_wake_callbacks = [];
-
 setInterval(function() {
     var currentTime = Date.now();
     if (currentTime > (xs_wake_lastTime + xs_wake_timeout + 2000)) {
-        xs_wake_callbacks.forEach(function (fn) {
-            fn();
-        });
+        document.dispatchEvent (new CustomEvent('xs_wake', {
+            details:{
+                delta: currentTime - xs_wake_timeout 
+                }
+            })
+        )
     }
     xs_wake_lastTime = currentTime;
 }, xs_wake_timeout)
 
-function xs_wakecb(fn) {xs_wake_callbacks.push(fn)}
+
 
 
 function ms2html (now) {
