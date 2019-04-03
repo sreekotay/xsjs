@@ -1,4 +1,4 @@
-var xs_perfnow = null//window.performance ? xs_perfnow : null
+var xs_perfnow = window.performance ? xs_perfnow : null
 
 // =====================================================================
 // accuTimer

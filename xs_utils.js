@@ -91,10 +91,11 @@ function xs_cookie(cname, cvalue, exMS) {
 }
 
     
+var xs_perfnow = window.performance ? xs_perfnow : null
 var xs_wake_timeout = 5000;
-var xs_wake_lastTime = Date.now();
+var xs_wake_lastTime = xs_perfnow ? xs_perfnow() : Date.now();
 setInterval(function() {
-    var currentTime = Date.now();
+    var currentTime = xs_perfnow ? xs_perfnow() : Date.now();
     if (currentTime > (xs_wake_lastTime + xs_wake_timeout + 2000)) {
         document.dispatchEvent (new CustomEvent('xs_wake', {
             details:{
