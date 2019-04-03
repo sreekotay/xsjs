@@ -1,3 +1,5 @@
+var xs_perfnow = null//window.performance ? xs_perfnow : null
+
 // =====================================================================
 // accuTimer
 // =====================================================================
@@ -9,13 +11,13 @@ function accuTimer(timer, repeatArgument, callbackArgument){
     var init = function (t) {
     if (t<=0) 
         debugger;
-    var timeLast = window.performance.now ?  window.performance.now() :  new Date().getTime();
+    var timeLast = xs_perfnow ?  xs_perfnow() :  new Date().getTime();
     if (counter==1) timeStart = timeLast
     setTimeout(function () {
         if (!stopped) {
             if (!started && callbackArgument) callbackArgument(false);
             started = true
-            var curTime = window.performance.now ?  window.performance.now() : new Date().getTime()
+            var curTime = xs_perfnow ?  xs_perfnow() : new Date().getTime()
             var fix = (curTime - timeStart) - timer;
 
             counter++
@@ -34,11 +36,11 @@ function accuTimer(timer, repeatArgument, callbackArgument){
     var counter, stopped
 
     var init = (t) => {
-        let timeStart = window.performance.now ?  window.performance.now() :  new Date().getTime();
+        let timeStart = xs_perfnow ?  xs_perfnow() :  new Date().getTime();
         setTimeout(function () {
             if (!stopped) {
 
-                let fix =window.performance.now ?  window.performance.now() : new Date().getTime()
+                let fix =xs_perfnow ?  xs_perfnow() : new Date().getTime()
                 fix = (fix - timeStart) - timer;
                 init(t - fix);
                 counter++;
@@ -88,12 +90,12 @@ function accuServer () {
 
 
     ac.date = function() {
-        var client_ms = window.performance.now ? window.performance.timing.navigationStart + window.performance.now() : (new Date()).getTime()
+        var client_ms = xs_perfnow ? window.performance.timing.navigationStart + xs_perfnow() : (new Date()).getTime()
         return new Date(client_ms + ac.diffBase + ac.shift)
     }
 
     ac.when = function() {
-        var client_ms = window.performance.now ? window.performance.timing.navigationStart + window.performance.now() : (new Date()).getTime()
+        var client_ms = xs_perfnow ? window.performance.timing.navigationStart + xs_perfnow() : (new Date()).getTime()
         return client_ms + ac.diffBase + ac.shift
     }
    
@@ -194,7 +196,7 @@ function accuServer () {
 
         function syncTime() {
             var StartTime = new Date();
-            var StartNow = window.performance.now ? window.performance.now() : 0
+            var StartNow = xs_perfnow ? xs_perfnow() : 0
 
             xhr = new XMLHttpRequest();
             //xhr.open("HEAD", "//www.googleapis.com",true);
@@ -210,7 +212,7 @@ function accuServer () {
                     } catch (err) {}
 
                     var EndTime = new Date();
-                    var EndNow = window.performance.now ? window.performance.now() : 0
+                    var EndNow = xs_perfnow ? xs_perfnow() : 0
 
                     //console.log (`client ${EndTime.toISOString()} server ${stime.toISOString()}`)
                     var dtime = StartNow ? (EndNow - StartNow) : (EndTime - StartTime)

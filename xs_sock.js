@@ -69,8 +69,8 @@ function xs_sockVerify(force) {
     if (xs_sock==0 || force || xs_sock.readyState!=1) {
         var urlWS = (window.location.protocol=='http:' ? 'ws://' : 'wss://') + window.location.hostname + ':'
         urlWS += window.location.port 
-        //urlWS = 'wss://jssync.azurewebsites.net'
-        urlWS += '?auth=1234.000'
+        urlWS = 'wss://jssync.azurewebsites.net'
+        urlWS += '/?auth=1234.000'
         if (xs_sock) xs_sock.close()
         xs_sock = new WebSocket(urlWS);
         xs_sock.onopen = function (event) {
