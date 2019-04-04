@@ -242,7 +242,7 @@ function accuServer () {
             xhr.open("GET", "//jssync.azurewebsites.net/sync",true);
             xhr.onreadystatechange=function() {
                 if (xhr.readyState==4) {
-                    var stime
+                    var stime;
                     try {
                         stime = new Date(xhr.getResponseHeader("Date")) 
                     } catch (err) {}
