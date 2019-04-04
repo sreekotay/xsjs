@@ -22,6 +22,8 @@ function xs_sockPush(data, when) {
     data.when = when || data.when || 0
     xs_sockCommands.push(data)
 
+    xs_sockExec(data, true)
+
     //sort if necessary
     if (last>=0 && xs_sockCommands[last].when<=data.when) return; 
     xs_sockCommands.sort (function (a,b) {
@@ -35,22 +37,28 @@ function xs_sockPop(when) {
     return null
 }
 
-function xs_sockExec(data) {
+function xs_sockExec(data, immediate) {
     var tc = xs_sockCommands [data.target] =  xs_sockCommands [data.target] || {}
-    if (!tc[data.method]) {
+    var tcm  = tc[data.method]
+    if (!tcm) {
         console.error('missing command: ' + data.method);
         return false
     }
-    tc[data.method].func.call (tc[data.method].thisObj, data) //run it
+    if (immediate) {
+        if (tcm.funcImm) tcm.funcImm.call (tcm.thisObj, data) //run it
+    } else {
+        if (tcm.func) tcm.func.call (tcm.thisObj, data) //run it
+    }
     return true
 }
 
-function xs_sockRegister(target, method, thisObj, func) {
+function xs_sockRegister(target, method, thisObj, func, funcImm) {
     var tc = xs_sockCommands [target] =  xs_sockCommands [target] || {}
     if (!tc) return false
     tc[method]= {
         thisObj: thisObj,
-        func: func
+        func: func,
+        funcImm: funcImm
     }
     return true
 }

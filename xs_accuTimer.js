@@ -198,6 +198,43 @@ function accuServer () {
             var StartTime = new Date();
             var StartNow = xs_perfnow ? xs_perfnow() : 0
 
+            function completeTimeCheck(stime) {
+                var EndTime = new Date();
+                var EndNow = xs_perfnow ? xs_perfnow() : 0
+
+                //console.log (`client ${EndTime.toISOString()} server ${stime.toISOString()}`)
+                var dtime = StartNow ? (EndNow - StartNow) : (EndTime - StartTime)
+                timeDiff = stime - EndTime +  dtime/2 
+                //if (EndNow) timeDiff = stime.getTime() - performance.timing.navigationStart - EndNow + dtime/2
+
+                timeDiffArr.push (timeDiff)
+        
+                retryCount++
+                timeDiff = filterOutliers(timeDiffArr)|0
+                var done = false
+                var thresh =  Math.abs(timeDiff-ac.diffBase)> acceptedDelay
+                if (thresh) runningNarrow = 0 
+                else runningNarrow++
+                ac.retries = retryCount
+                if (retryCount < retryMax && (retryCount<retryMin || runningNarrow<runningMax)) {
+                    syncTime();
+                //console.log (Math.abs(timeDiff-ac.diff))
+                } else {
+                    console.log ("attempts [" + timeDiffArr + "]\n[completed sync] retries: " + retryCount )
+                    console.log ("[completed sync] delta: " + timeDiff)
+                    if (window.onAccuServerReady) window.onAccuServerReady()
+                    done = true
+                }
+                if (1) {                    
+                    if (done) {
+                        window.localStorage.setItem(lastSyncKey, '' + (new Date()));
+                        window.localStorage.setItem(timeDiffKey, timeDiff);
+                    }
+                    ac.diffBase = timeDiff
+                    ac.diff = ac.diffBase + ac.shift
+                }
+            }
+
             xhr = new XMLHttpRequest();
             //xhr.open("HEAD", "//www.googleapis.com",true);
             //xhr.open("HEAD", "//s3.amazonaws.com/gopuff-locales/locales.csv",true);
@@ -205,46 +242,15 @@ function accuServer () {
             xhr.open("GET", "//jssync.azurewebsites.net/sync",true);
             xhr.onreadystatechange=function() {
                 if (xhr.readyState==4) {
-                    var stime = new Date(xhr.getResponseHeader("Date")) 
+                    var stime
+                    try {
+                        stime = new Date(xhr.getResponseHeader("Date")) 
+                    } catch (err) {}
                     try {
                     var json = JSON.parse (xhr.responseText)
                     stime = new Date(json.time)
                     } catch (err) {}
-
-                    var EndTime = new Date();
-                    var EndNow = xs_perfnow ? xs_perfnow() : 0
-
-                    //console.log (`client ${EndTime.toISOString()} server ${stime.toISOString()}`)
-                    var dtime = StartNow ? (EndNow - StartNow) : (EndTime - StartTime)
-                    timeDiff = stime - EndTime +  dtime/2 
-                    //if (EndNow) timeDiff = stime.getTime() - performance.timing.navigationStart - EndNow + dtime/2
-
-                    timeDiffArr.push (timeDiff)
-            
-                    retryCount++
-                    timeDiff = filterOutliers(timeDiffArr)|0
-                    var done = false
-                    var thresh =  Math.abs(timeDiff-ac.diffBase)> acceptedDelay
-                    if (thresh) runningNarrow = 0 
-                    else runningNarrow++
-                    ac.retries = retryCount
-                    if (retryCount < retryMax && (retryCount<retryMin || runningNarrow<runningMax)) {
-                        syncTime();
-                    //console.log (Math.abs(timeDiff-ac.diff))
-                    } else {
-                        console.log ("attempts [" + timeDiffArr + "]\n[completed sync] retries: " + retryCount )
-                        console.log ("[completed sync] delta: " + timeDiff)
-                        if (window.onAccuServerReady) window.onAccuServerReady()
-                        done = true
-                    }
-                    if (1) {                    
-                        if (done) {
-                            window.localStorage.setItem(lastSyncKey, '' + (new Date()));
-                            window.localStorage.setItem(timeDiffKey, timeDiff);
-                        }
-                        ac.diffBase = timeDiff
-                        ac.diff = ac.diffBase + ac.shift
-                    }
+                    completeTimeCheck(stime) //date object
                 }
             }
             xhr.send(null);
