@@ -77,19 +77,19 @@ function xs_sockVerify(force) {
     if (xs_sock==0 || force || xs_sock.readyState!=1) {
         var urlWS = (window.location.protocol=='http:' ? 'ws://' : 'wss://') + window.location.hostname + ':'
         urlWS += window.location.port 
-        urlWS = 'wss://jssync.azurewebsites.net'
+        //urlWS = 'wss://jssync.azurewebsites.net'
         urlWS += '?auth=1234.000'
         if (xs_sock) xs_sock.close()
         xs_sock = new WebSocket(urlWS);
         xs_sock.onopen = function (event) {
             xs_sockRemote ({socket_guid:xs_sockGUID}) //respond with GUID
-            document.dispatchEvent(new CustomEvent('xs_sock'), {detail:{msg:'open'}})
+            document.dispatchEvent(new CustomEvent('xs_sock', {detail:{msg:'open'}}))
             };
         xs_sock.onclose = function (event) {
-            document.dispatchEvent(new CustomEvent('xs_sock'), {detail:{msg:'close'}})
+            document.dispatchEvent(new CustomEvent('xs_sock', {detail:{msg:'close'}}))
             };
         xs_sock.onerror = function (event) {
-            document.dispatchEvent(new CustomEvent('xs_sock'), {detail:{msg:'error'}})
+            document.dispatchEvent(new CustomEvent('xs_sock', {detail:{msg:'error'}}))
             };
         xs_sock.onmessage = function(evt) {
             var data = evt.data
