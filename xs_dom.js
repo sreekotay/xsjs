@@ -27,6 +27,18 @@ function xs_keyOf (obj, value) { //find key give value
     return null;
 }
 
+function xs_coords(elem) { //relative to document
+  let box = elem.getBoundingClientRect();
+
+  return {
+    top: box.top + pageYOffset,
+    left: box.left + pageXOffset
+  };
+}
+function xs_bounds(elem) { //relative to window
+    return elem.getBoundingClientRect();
+}
+  
 function  xs_extendObject(prop, value) {
     Object.defineProperty(Object.prototype, prop,{
         value:value,
