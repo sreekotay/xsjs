@@ -153,5 +153,17 @@ function xs_sessionJoin(guid, data) {
     xs_sockRemote ({socket_guid:xs_sockGUID, session_guid:xs_sessionsGUID}) //respond with GUID
 }
 
+function xs_sessionRead(cb) {
+    xs_HTTP ('GET', '/session/get?GUID=' + xs_session)
+    .then((result) => {
+        if (cb) cb(result)
+        
+    }).catch((err) => {
+        console.error(err)
+        if (cb) cb(null)
+        
+    })
+}
+
 
 
