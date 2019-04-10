@@ -77,12 +77,12 @@ function xs_sockVerify(force) {
     if (xs_sock==0 || force || xs_sock.readyState!=1) {
         var urlWS = (window.location.protocol=='http:' ? 'ws://' : 'wss://') + window.location.hostname + ':'
         urlWS += window.location.port 
-        urlWS = 'wss://jssync.azurewebsites.net'
+        //urlWS = 'wss://jssync.azurewebsites.net'
         urlWS += '?auth=1234.000'
         if (xs_sock) xs_sock.close()
         xs_sock = new WebSocket(urlWS);
         xs_sock.onopen = function (event) {
-            xs_sockRemote ({socket_guid:xs_sockGUID}) //respond with GUID
+            xs_sockRemote ({socket_guid:xs_sockGUID, session_guid:xs_sessionsGUID}) //respond with GUID
             document.dispatchEvent(new CustomEvent('xs_sock', {detail:{msg:'open'}}))
             };
         xs_sock.onclose = function (event) {
@@ -131,9 +131,27 @@ if (1){
     xs_sockVerify();
     setInterval(function(){xs_sockVerify();}, 3000);
 }
+
 function xs_sockRemote(msg, delay) {
     if (typeof(msg)!='string') msg = JSON.stringify(msg)
     console.log('<--',msg);
     if (!delay) xs_sock.send(msg);
     else setTimeout (function() {xs_sock.send(msg)}, delay) 
 }
+
+// ========================================
+// sessions
+// ========================================
+var xs_session = getCookie('xs_session')
+var xs_sessionsGUID 
+function xs_sessionJoin(guid, data) {
+    data = Object.assign ({GUID:guid || xs_session}, data)
+    xs_HTTP ('POST', '/session/set', data)
+    xs_session = guid
+    
+    setCookie('xs_session', guid, 1000*60*60*24) //24 hours
+    xs_sockRemote ({socket_guid:xs_sockGUID, session_guid:xs_sessionsGUID}) //respond with GUID
+}
+
+
+

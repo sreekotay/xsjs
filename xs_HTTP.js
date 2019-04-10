@@ -1,3 +1,17 @@
+
+// ===============================
+//
+//  xs_HTTP (method, url, data, headers, options)
+//  xs_HTTPCancel (method, url, data, headers, options)
+//  xs_HTTPProxy (method, url, data, headers, options)
+//
+//  options:
+//    cachems
+//    noAutoHeader (global headers from xs_Headers)
+//    immedate  --- only from cache
+//  
+// ===============================
+
 // promise polyfill
 !(function (e, n) { typeof exports === 'object' && typeof module !== 'undefined' ? n() : typeof define === 'function' && define.amd ? define(n) : n() }(0, function () { 'use strict'; function e (e) { var n = this.constructor; return this.then(function (t) { return n.resolve(e()).then(function () { return t }) }, function (t) { return n.resolve(e()).then(function () { return n.reject(t) }) }) } function n () {} function t (e) { if (!(this instanceof t)) throw new TypeError('Promises must be constructed via new'); if (typeof e !== 'function') throw new TypeError('not a function'); this._state = 0, this._handled = !1, this._value = undefined, this._deferreds = [], u(e, this) } function o (e, n) { for (;e._state === 3;)e = e._value; e._state !== 0 ? (e._handled = !0, t._immediateFn(function () { var t = e._state === 1 ? n.onFulfilled : n.onRejected; if (t !== null) { var o; try { o = t(e._value) } catch (f) { return void i(n.promise, f) }r(n.promise, o) } else (e._state === 1 ? r : i)(n.promise, e._value) })) : e._deferreds.push(n) } function r (e, n) { try { if (n === e) throw new TypeError('A promise cannot be resolved with itself.'); if (n && (typeof n === 'object' || typeof n === 'function')) { var o = n.then; if (n instanceof t) return e._state = 3, e._value = n, void f(e); if (typeof o === 'function') return void u((function (e, n) { return function () { e.apply(n, arguments) } }(o, n)), e) }e._state = 1, e._value = n, f(e) } catch (r) { i(e, r) } } function i (e, n) { e._state = 2, e._value = n, f(e) } function f (e) { e._state === 2 && e._deferreds.length === 0 && t._immediateFn(function () { e._handled || t._unhandledRejectionFn(e._value) }); for (var n = 0, r = e._deferreds.length; r > n; n++)o(e, e._deferreds[n]); e._deferreds = null } function u (e, n) { var t = !1; try { e(function (e) { t || (t = !0, r(n, e)) }, function (e) { t || (t = !0, i(n, e)) }) } catch (o) { if (t) return; t = !0, i(n, o) } } var c = setTimeout; t.prototype['catch'] = function (e) { return this.then(null, e) }, t.prototype.then = function (e, t) { var r = new this.constructor(n); return o(this, new function (e, n, t) { this.onFulfilled = typeof e === 'function' ? e : null, this.onRejected = typeof n === 'function' ? n : null, this.promise = t }(e, t, r)), r }, t.prototype['finally'] = e, t.all = function (e) { return new t(function (n, t) { function o (e, f) { try { if (f && (typeof f === 'object' || typeof f === 'function')) { var u = f.then; if (typeof u === 'function') return void u.call(f, function (n) { o(e, n) }, t) }r[e] = f, --i == 0 && n(r) } catch (c) { t(c) } } if (!e || typeof e.length === 'undefined') throw new TypeError('Promise.all accepts an array'); var r = Array.prototype.slice.call(e); if (r.length === 0) return n([]); for (var i = r.length, f = 0; r.length > f; f++)o(f, r[f]) }) }, t.resolve = function (e) { return e && typeof e === 'object' && e.constructor === t ? e : new t(function (n) { n(e) }) }, t.reject = function (e) { return new t(function (n, t) { t(e) }) }, t.race = function (e) { return new t(function (n, t) { for (var o = 0, r = e.length; r > o; o++)e[o].then(n, t) }) }, t._immediateFn = typeof setImmediate === 'function' && function (e) { setImmediate(e) } || function (e) { c(e, 0) }, t._unhandledRejectionFn = function (e) { void 0 !== console && console && console.warn('Possible Unhandled Promise Rejection:', e) }; var l = (function () { if (typeof self !== 'undefined') return self; if (typeof window !== 'undefined') return window; if (typeof global !== 'undefined') return global; throw Error('unable to locate global object') }()); 'Promise' in l ? l.Promise.prototype['finally'] || (l.Promise.prototype['finally'] = e) : l.Promise = t }))
 
@@ -37,7 +51,7 @@ var isBot = /bot|crawler|spider|robot|crawling|teoma|slurp|yandex|google|baidu|b
 function xs_HTTP (method, url, data, headers, options) {
   if (isBot) return
   if (typeof (url) === 'object') return new Promise(function (resolve, reject) { resolve(url) }) // to simplify code flow
-  headers = Object.assign(xs_DefaultHeaders, headers)
+  headers = Object.assign({}, (!options || options.noAutoHeader) ? {} : xs_DefaultHeaders, headers)
   var opt = Object.assign({}, options)
   opt.method = method; opt.url = url; opt.data = data, opt.headers = headers
   return alite(opt)
@@ -79,7 +93,7 @@ function successPromise (data) {
 function xs_Hash (s) { var h = 0, l = s.length, i = 0; while (i < l) h = (h << 5) - h + s.charCodeAt(i++) | 0; return h };
 function xs_HTTPProxy (method, url, data, headers, options) {
   options = options || {}
-  headers = Object.assign((!options || options.noAutoHeader) ? {} : xs_DefaultHeaders, headers)
+  headers = Object.assign({}, (!options || options.noAutoHeader) ? {} : xs_DefaultHeaders, headers)
   // if (!'Content-Type' in headers) headers['Content-Type'] = 'application/json'
   var cachems = ('cachems' in options ? options.cachems : xs_ProxMS)
   if (typeof (url) === 'object') return successPromise(url) // to simplify code flow
