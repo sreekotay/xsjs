@@ -134,23 +134,80 @@ var scrollStop = function (startcb, stopcb) {
 
     function scrollCheck() {
         if (!isScrolling && startcb) startcb()
-        
-        // Clear our timeout throughout the scroll
-		window.clearTimeout(isScrolling);
 
-		// Set a timeout to run after scrolling ends
-		isScrolling = setTimeout(function() {
+        // Clear our timeout throughout the scroll
+        window.clearTimeout(isScrolling);
+
+        // Set a timeout to run after scrolling ends
+        isScrolling = setTimeout(function() {
             if (touching || mousing) return scrollCheck()
 
-			// Run the callback
+        	// Run the callback
             if (stopcb) stopcb();
             isScrolling = null
 
-		}, 300);
-       
+        }, 300);
     }   
    
 };
+
+
+
+/*
+ usage :
+    const divPool = new xs_poolDOM({
+    tagName: 'div'
+    })
+*/
+function xs_poolDOM(params) {
+    if (typeof params !== 'object')
+        throw new Error("Please pass parameters. Example -> new xs_poolDOM({ tagName: \"div\" })")
+
+    if (typeof params.tagName !== 'string')
+        throw new Error("Please specify a tagName. Example -> new xs_poolDOM({ tagName: \"div\" })");
+
+    this.storage = [];
+    this.tagName = params.tagName.toLowerCase();
+    this.namespace = params.namespace;
+}
+
+xs_poolDOM.prototype.push = function(el) {
+    if (el.tagName.toLowerCase() !== this.tagName)
+        return;
+    
+    if (el.parentNode)
+        el.parentNode.removeChild(el)
+    
+    this.storage.push(el);
+};
+
+xs_poolDOM.prototype.pop = function(argument) {
+    if (this.storage.length === 0)
+        return this.create();
+    else
+        return this.storage.pop();
+};
+
+xs_poolDOM.prototype.create = function() {
+    if (this.namespace)
+        return document.createElementNS(this.namespace, this.tagName);
+    else
+        return document.createElement(this.tagName);
+};
+
+xs_poolDOM.prototype.allocate = function(size) {
+    if (this.storage.length >= size) 
+        return;
+
+    var difference = size - this.storage.length;
+    for (var xs_poolDOMAllocIter = 0; xs_poolDOMAllocIter < difference; xs_poolDOMAllocIter++)
+        this.storage.push(this.create());
+};
+
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+    module.exports = xs_poolDOM;
+}
+
 
 
 // how much of an element is inview?
@@ -158,6 +215,8 @@ function inViewportPercent (element, coverage) {
     coverage = coverage || 0.1
 
     var eb  = element.getBoundingClientRect();
+    var w = window.innerWidth*(1-coverage*2)
+    var h = window.innerHeight*(1-coverage*2)
 
     const intersection = {
         l: Math.max(eb.left,   window.innerWidth*coverage),
@@ -167,7 +226,7 @@ function inViewportPercent (element, coverage) {
     };
 
     if (intersection.r<intersection.l || intersection.b<intersection.t) return 0
-    return (intersection.b-intersection.t)/eb.height*(intersection.r-intersection.l)/eb.width
+    return (intersection.b-intersection.t)/h*(intersection.r-intersection.l)/w
 }
 
 /*!
