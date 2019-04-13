@@ -13,6 +13,13 @@ function xs_get (obj, path) { //get "dotted" path (access is an optional user pr
     return obj
 }
 
+
+function xs_raf(task){
+    if('requestAnimationFrame' in window)
+        return window.requestAnimationFrame(task)
+    setTimeout(task, 16)
+}
+
 //from https://stackoverflow.com/questions/35610242/detecting-changes-in-a-javascript-array-using-the-proxy-object
 function xs_observe(o, rcb, wcb) {
     if (this!=window) {wcb=rcb; rcb=o; o=this; }
@@ -110,7 +117,8 @@ xs_extendObject ('xs_reverseIndex', xs_reverseIndex)
  * @param  {Function} callback The function to run after scrolling
  */
 // modified to include start and stop
-var scrollStop = function (startcb, stopcb) {
+var scrollStop = function (startcb, stopcb, el) {
+    el = el || window
 
 	// Make sure a valid callback was provided
 	if (!stopcb && !startcb) return;
@@ -124,13 +132,13 @@ var scrollStop = function (startcb, stopcb) {
     window.addEventListener('touchstart', function (event)  {touching = true}, false)
     window.addEventListener('touchend', function (event)    {touching = false; scrollCheck()}, false)
     window.addEventListener('touchcancel', function (event) {touching = false; scrollCheck()}, false)
+    el.addEventListener('mousedown', function (event)   {mousing = true}, false)
+    el.addEventListener('mouseup', function (event)     {mousing = false; scrollCheck()}, false)
     */
-    window.addEventListener('mousedown', function (event)   {mousing = true}, false)
-    window.addEventListener('mouseup', function (event)     {mousing = false; scrollCheck()}, false)
 
 	// Listen for scroll events
-	window.addEventListener('scroll', scrollCheck, false)
-	window.addEventListener('touchmove', scrollCheck, false)
+	el.addEventListener('scroll', scrollCheck, false)
+	el.addEventListener('touchmove', scrollCheck, false)
 
     function scrollCheck() {
         if (!isScrolling && startcb) startcb()
@@ -146,7 +154,7 @@ var scrollStop = function (startcb, stopcb) {
             if (stopcb) stopcb();
             isScrolling = null
 
-        }, 300);
+        }, 50);
     }   
    
 };
