@@ -1,0 +1,50 @@
+.xstbl_row, .xstbl > div.header {
+  display: flex;
+  flex-direction: row;
+}
+
+.xstbl > div.header div {
+  align-items: flex-end;
+  display: inline-block;
+}
+.xstbl_row div, .xstbl > div.header div {
+  padding-left: 4px;
+  flex-wrap: nowrap;
+  display: inline-block;
+}
+
+.xstbl.xswideheaders > div.header div {
+  white-space: nowrap;
+}
+
+
+.xstbl > div.header div.rotate {
+    transform-origin: left top 0;
+    width:0;
+    transform: 
+      translate(0px, 0px)
+      rotate(315deg);
+  }
+
+.xstbl > div.cell {
+  white-space: nowrap;
+  overflow:auto
+}
+.xstbl > div.header {
+  overflow:hidden;
+  flex-shrink: 0;
+}
+
+.xstbl{
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+#table div.xstbl_hdr   {
+  color: rgba(0,0,0,0.3);
+
+}
+#table div.xstbl_cell   {
+  color: #222;
+}
