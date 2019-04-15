@@ -153,8 +153,13 @@ function xs_sessionJoin (guid, data) {
 
 xs_geolocation(function (c) {
   if (!c) return
-  xs_sessionLocation = c.coords
-  if (xs_session && xs_sockReady())   xs_sessionJoin()
+  xs_sessionLocation = {
+    location: {
+      type: 'Point',
+      coordinates: [c.coords.longitude, c.coords.latitude]
+    }
+  }
+  if (xs_session && xs_sockReady()) xs_sessionJoin()
 })
 
 function xs_sessionRead (cb) {
