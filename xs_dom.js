@@ -206,7 +206,7 @@ var scrollStop = function (startcb, stopcb, el) {
         	// Run the callback
       if (stopcb) stopcb()
       isScrolling = null
-    }, 50)
+    }, 500)
   }
 }
 
