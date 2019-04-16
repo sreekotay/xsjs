@@ -200,7 +200,7 @@ function accuServer () {
       xhr = new XMLHttpRequest()
       // xhr.open("HEAD", "//www.googleapis.com",true);
       // xhr.open("HEAD", "//s3.amazonaws.com/gopuff-locales/locales.csv",true);
-      // xhr.open("GET", "sync",true);
+      //xhr.open("GET", "/sync",true);
       xhr.open('GET', '//jssync.azurewebsites.net/sync', true)
       xhr.onreadystatechange = function () {
         if (xhr.readyState == 4) {
