@@ -74,7 +74,8 @@ function xs_sockVerify (force) {
   if (xs_sock == 0 || force || xs_sock.readyState != 1) {
     var urlWS = (window.location.protocol == 'http:' ? 'ws://' : 'wss://') + window.location.hostname + ':'
     urlWS += window.location.port
-    //urlWS = 'wss://jssync.azurewebsites.net'
+    if (window.location.hostname=="blinkproto.fwd.wf")
+      urlWS = 'wss://jssync.azurewebsites.net'
     urlWS += '?auth=1234.000'
     if (xs_sock) xs_sock.close()
     xs_sock = new WebSocket(urlWS)
@@ -150,7 +151,7 @@ function xs_sessionJoin (guid, data) {
   xs_HTTP('POST', '/session/set', data)
   xs_session = guid || xs_session
 
-  setCookie('xs_session', guid, 1000 * 60 * 60 * 24) // 24 hours
+  setCookie('xs_session', xs_session, 1000 * 60 * 60 * 24) // 24 hours
   xs_sockRemote({ socket_guid: xs_sockGUID, session_guid: xs_session }) // respond with GUID
 }
 
