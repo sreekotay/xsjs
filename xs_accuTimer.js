@@ -71,7 +71,7 @@ function accuServer () {
     var timeDiffKey = 'Local-Server-timeDiff'
 
     var retryMax = 100
-    var retryMin = 3
+    var retryMin = 6
     var retryCount = 0
     var acceptedDelay = 2
     var runningNarrow = 0
