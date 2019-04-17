@@ -10,10 +10,15 @@
 //      xs_sockPop ([when])
 //      xs_sockRegister (target, methdo, thisObj, func)
 //
+//      xs_sessionList
+//      xs_sessionJoin
+//      xs_geolocation
 //
 //     events:
 //      xs_sock:  detail{msg:'error'|'open'|'close'}
 //
+//     globals:
+//      xs_session
 // =====================================================================
 var xs_sockCommands = []
 var xs_sockCommandLock = {}
@@ -74,8 +79,7 @@ function xs_sockVerify (force) {
   if (xs_sock == 0 || force || xs_sock.readyState != 1) {
     var urlWS = (window.location.protocol == 'http:' ? 'ws://' : 'wss://') + window.location.hostname + ':'
     urlWS += window.location.port
-    if (window.location.hostname=="blinkproto.fwd.wf")
-      urlWS = 'wss://jssync.azurewebsites.net'
+    if (window.location.hostname == 'blinkproto.fwd.wf') { urlWS = 'wss://jssync.azurewebsites.net' }
     urlWS += '?auth=1234.000'
     if (xs_sock) xs_sock.close()
     xs_sock = new WebSocket(urlWS)
@@ -140,18 +144,19 @@ function xs_sockRemote (msg, delay) {
 // ========================================
 // sessions
 // ========================================
-var xs_session = getCookie('xs_session')
+var xs_sessionVersion = window.xs_sessionVersion || 1
+var xs_session = getCookie('xs_session_' + xs_sessionVersion)
 var xs_sessionLocation
 function xs_sessionJoin (guid, data) {
   if (!guid && !xs_session) {
-    debugger;
-    return;
+    debugger
+    return
   }
   data = Object.assign({ GUID: guid || xs_session }, data, xs_sessionLocation)
-  xs_HTTP('POST', '/session/set', data)
+  xs_HTTP('POST', '/session/set?version=' + xs_sessionVersion, data)
   xs_session = guid || xs_session
 
-  setCookie('xs_session', xs_session, 1000 * 60 * 60 * 24) // 24 hours
+  setCookie('xs_session_' + xs_sessionVersion, xs_session, 1000 * 60 * 60 * 24) // 24 hours
   xs_sockRemote({ socket_guid: xs_sockGUID, session_guid: xs_session }) // respond with GUID
 }
 
@@ -176,12 +181,35 @@ function xs_sessionRead (cb) {
     })
 }
 
+var xs_sessionListCB
+function xs_sessionListHandler (data) {
+  var sesslist = data.sessions
+  var sessions = []
+  for (var i in sesslist) {
+    if (sesslist[i].GUID == xs_session) continue// skip current
+    sesslist[i].name = sesslist[i].name || sesslist[i].GUID
+    sessions.push(sesslist[i])
+  }
+
+  sessions.push({ name: 'New Session', GUID: xs_GUIDGen(), newSession: true })
+  if (xs_session) { sessions.push({ name: 'Current Session', GUID: xs_session }) }
+
+  if (!xs_session && sessions.length > 1) {
+    if (sessions[0].newSession) xs_sessionJoin(sessions[1].GUID) // join first
+    else xs_sessionJoin(sessions[0].GUID) // join first
+  }
+  if (xs_sessionListCB) xs_sessionListCB(sessions, sesslist)
+}
+
 function xs_sessionList (cb, data) {
-  xs_HTTP('get', data || '/session/list')
-    .then(function (result) {
-      if (cb) cb(result)
+  xs_sessionListCB = cb
+  xs_HTTP('get', data || '/session/list?version=' + xs_sessionVersion)
+    .then(function (sesslist) {
+      xs_sessionListHandler({sessions: sesslist})
     }).catch(function (err) {
       console.error(err)
       if (cb) cb(null)
     })
 }
+
+xs_sockRegister('session', 'list', null, xs_sessionListHandler)
