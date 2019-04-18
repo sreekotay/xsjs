@@ -214,7 +214,3 @@ function xs_sessionList (cb, data) {
 
 xs_sockRegister('session', 'list', null, xs_sessionListHandler)
 
-// resync on wake up
-document.addEventListener('xs_wake', function (e) {
-  xs_sessionJoin()
-})
