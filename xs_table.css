@@ -26,6 +26,9 @@
       rotate(315deg);
   }
 
+  .xstbl > div.cell {
+    _font-size: 50%;
+  }
 .xstbl > div.cell {
   white-space: nowrap;
   overflow:auto

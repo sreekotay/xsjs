@@ -219,7 +219,10 @@ function accuServer () {
     }
   }
 
-  ac.forceSync()
+  document.addEventListener('DOMContentLoaded', function(event) {
+    //the event occurred
+    ac.forceSync()
+  })
   return ac
 }
 
@@ -227,3 +230,8 @@ function accuServer () {
 // instantiate
 // =====================================================================
 var xs_accuServer = accuServer() // create instance
+
+//resync on wake up
+document.addEventListener('xs_wake', function (e) {
+  xs_accuServer.forceSync()
+})

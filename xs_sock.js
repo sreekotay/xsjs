@@ -45,7 +45,7 @@ function xs_sockExec (data, immediate) {
   var tc = xs_sockCommands[data.target] = xs_sockCommands[data.target] || {}
   var tcm = tc[data.method]
   if (!tcm) {
-    console.error('missing command: ' + data.method)
+    console.error('missing command: ' + data.method, ' target: ', data.target)
     return false
   }
   if (immediate) {
@@ -147,17 +147,17 @@ function xs_sockRemote (msg, delay) {
 var xs_sessionVersion = window.xs_sessionVersion || 1
 var xs_session = getCookie('xs_session_' + xs_sessionVersion)
 var xs_sessionLocation
-function xs_sessionJoin (guid, data) {
+function xs_sessionJoin (guid, data, cb) {
   if (!guid && !xs_session) {
-    debugger
     return
   }
   data = Object.assign({ GUID: guid || xs_session }, data, xs_sessionLocation)
   xs_HTTP('POST', '/session/set?version=' + xs_sessionVersion, data)
+    .then(function (data) { if (cb) cb(data) })
   xs_session = guid || xs_session
 
   setCookie('xs_session_' + xs_sessionVersion, xs_session, 1000 * 60 * 60 * 24) // 24 hours
-  xs_sockRemote({ socket_guid: xs_sockGUID, session_guid: xs_session }) // respond with GUID
+  if (xs_sockReady()) xs_sockRemote({ socket_guid: xs_sockGUID, session_guid: xs_session }) // respond with GUID
 }
 
 xs_geolocation(function (c) {
@@ -205,7 +205,7 @@ function xs_sessionList (cb, data) {
   xs_sessionListCB = cb
   xs_HTTP('get', data || '/session/list?version=' + xs_sessionVersion)
     .then(function (sesslist) {
-      xs_sessionListHandler({sessions: sesslist})
+      xs_sessionListHandler({ sessions: sesslist })
     }).catch(function (err) {
       console.error(err)
       if (cb) cb(null)
@@ -213,3 +213,8 @@ function xs_sessionList (cb, data) {
 }
 
 xs_sockRegister('session', 'list', null, xs_sessionListHandler)
+
+// resync on wake up
+document.addEventListener('xs_wake', function (e) {
+  xs_sessionJoin()
+})

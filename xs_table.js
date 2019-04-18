@@ -103,18 +103,22 @@ function autoDOM (el, options) {
   if (el.style.position != 'absolute' || el.style.position != 'fixed') { el.style.position = 'relative' }
 
   function repaint () {
+    var tarr = []
+    tarr.push(new Date().getTime())
+    var nvh = xs_bounds(el).height
     if (needPaint) xs_raf(repaint)
-    if (el.scrollTop == scrollTop && vh == xs_bounds(el).height) return
+    if (el.scrollTop == scrollTop && vh == nvh) return
     scrollTop = el.scrollTop
-    vh = xs_bounds(el).height
+    vh = nvh
 
     var ps = ((vh / options.itemHeight) | 0)
     var beg = (scrollTop / options.itemHeight) | 0
     var end = beg + ps + 1
     var rows = el.querySelectorAll('.vrow'); var begEl
 
-    beg = Math.max(0, beg - ps)
-    end = Math.min(options.total, end + ps)
+    var extra = ps/2//ps
+    beg = Math.max(0, beg - extra)
+    end = Math.min(options.total, end + extra)
     if (1 && rows.length) {
       first = rows[0]
       last = rows[rows.length - 1]
@@ -149,8 +153,8 @@ function autoDOM (el, options) {
     }
 
     // experimental support for variable height
-    var rows = el.querySelectorAll('.vrow')
     if (0 && rows.length) {
+      var rows = el.querySelectorAll('.vrow')
       var first = 0; var last = 0
       for (var i = 0; i < rows.length; i++) {
         var vs = rows[i].virtualScroll
@@ -169,11 +173,14 @@ function autoDOM (el, options) {
       bottomdiv.style.height = bottom + 'px'
     }
 
+    tarr.push(new Date().getTime())
     if (options.afterRender) { options.afterRender(el) }
+    tarr.push(new Date().getTime())
 
     // experimental support for variable height
     var ds = []
     if (0 && rows.length) {
+      var rows = el.querySelectorAll('.vrow')
       for (var i = 0; i < rows.length; i++) { ds.push(rows[i]) }
       ds = ds.sort(function (a, b) { return a.virtualScroll - b.virtualScroll })
       var beg = ds[0].virtualScroll
@@ -185,14 +192,32 @@ function autoDOM (el, options) {
           d.style.top = th + 'px'
           // d.style.top = ((beg+i)*options.itemHeight) + 'px'
           // th += options.itemHeight
-          th += xs_bounds(d).height
+          var height = xs_bounds(d).height
+          if (options.itemHeight < height) { //grow row height
+            options.itemHeight = height
+            needed = options.total * options.itemHeight
+            bottomdiv.style.height = needed + 'px'
+          }
+          th += height
+        }
+
+        //clean up end
+        if (th < needed && beg + ds.length == options.total) {
+          needed = th
+          bottomdiv.style.height = needed + 'px'
         }
       }
     }
 
-    el.scrollTop = scrollTop
+    // el.scrollTop = scrollTop
     vh = xs_bounds(el).height
-  }
+    tarr.push(new Date().getTime())
+
+    for (var i=1; i<tarr.length; i++)
+      tarr[i-1] = tarr[i]-tarr[i-1]
+    tarr.length -=1
+    console.log ("timing:", tarr)
+  } 
 
   function debounce (func, wait, immediate) {
     var timeout
@@ -274,7 +299,7 @@ function renderTable (el, table) {
       total: table.length,
       afterRender: afterRender,
       generate: function (index) {
-        return generateRow(index).el
+        return generateRow(index)
       }
     })
   }
@@ -298,7 +323,7 @@ function renderTable (el, table) {
   }
   //= ============================ generateRow
   function generateRow (i) {
-    if (row_render[i]) return row_render[i]
+    if (row_render[i]) return row_render[i].el
     var row = '<div class="xstbl_row">'
     var trow = table[i]
     if (table.includeRowNumber) { row += '<div class="xstbl_hdr xstbl_rowno">' + (i + 1) + '</div>' }
@@ -309,12 +334,14 @@ function renderTable (el, table) {
       row += ' data-i="' + i + '" data-j="' + j + '">'
       if (trow[h] !== undefined) { row += (hfuncs.render[h] ? hfuncs.render[h].call(null, trow[h], j, trow, i, table) : trow[h]) }
       row += '</div>'
+
+      //if (h>=0) break;
     }
     row += '</div>'
     var rowel = { el: createElementFromHTML(row), dom: false }
     // rowel.height = rowel.el.measure()
     row_render[i] = rowel
-    return rowel
+    return rowel.el
   }
 
   //= ============================ afterRender
