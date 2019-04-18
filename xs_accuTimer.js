@@ -185,6 +185,7 @@ function accuServer () {
           console.log('attempts [' + timeDiffArr + ']\n[completed sync] retries: ' + retryCount)
           console.log('[completed sync] delta: ' + timeDiff)
           if (window.onAccuServerReady) window.onAccuServerReady()
+          document.dispatchEvent(new CustomEvent('xs_accuServerReady', {})  
           done = true
         }
         if (1) {
