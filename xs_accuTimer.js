@@ -185,7 +185,7 @@ function accuServer () {
           console.log('attempts [' + timeDiffArr + ']\n[completed sync] retries: ' + retryCount)
           console.log('[completed sync] delta: ' + timeDiff)
           if (window.onAccuServerReady) window.onAccuServerReady()
-          document.dispatchEvent(new CustomEvent('xs_accuServerReady', {})  
+          document.dispatchEvent(new CustomEvent('xs_accuServerReady', {}))
           done = true
         }
         if (1) {
@@ -201,7 +201,7 @@ function accuServer () {
       xhr = new XMLHttpRequest()
       // xhr.open("HEAD", "//www.googleapis.com",true);
       // xhr.open("HEAD", "//s3.amazonaws.com/gopuff-locales/locales.csv",true);
-      //xhr.open("GET", "/sync",true);
+      // xhr.open("GET", "/sync",true);
       xhr.open('GET', '//jssync.azurewebsites.net/sync', true)
       xhr.onreadystatechange = function () {
         if (xhr.readyState == 4) {
@@ -220,8 +220,8 @@ function accuServer () {
     }
   }
 
-  document.addEventListener('DOMContentLoaded', function(event) {
-    //the event occurred
+  document.addEventListener('DOMContentLoaded', function (event) {
+    // the event occurred
     ac.forceSync()
   })
   return ac
@@ -232,7 +232,7 @@ function accuServer () {
 // =====================================================================
 var xs_accuServer = accuServer() // create instance
 
-//resync on wake up
+// resync on wake up
 document.addEventListener('xs_wake', function (e) {
   xs_accuServer.forceSync()
 })
