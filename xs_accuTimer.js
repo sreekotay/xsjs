@@ -12,8 +12,10 @@ function accuTimer (timer, repeatArgument, callbackArgument) {
     timeStart = xs_perfnow ? xs_perfnow() : new Date().getTime()
     setTimeout(function () {
       if (!stopped) {
-        var fix = xs_perfnow ? xs_perfnow() : new Date().getTime()
-        fix = (fix - timeStart) - timer
+        var timeNow = xs_perfnow ? xs_perfnow() : new Date().getTime()
+        var fix = (timeNow - timeStart) - timer
+        //if ((t - fix)<0)
+        //  debugger;
         init((t - fix)%timer)
         counter++
 
