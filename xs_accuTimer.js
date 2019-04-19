@@ -14,6 +14,7 @@ function accuTimer (timer, repeatArgument, callbackArgument) {
       if (!stopped) {
         var fix = xs_perfnow ? xs_perfnow() : new Date().getTime()
         fix = (fix - timeStart) - timer
+        while (t - fix<0) fix+= timer
         init(t - fix)
         counter++
 
