@@ -158,3 +158,14 @@ var xs_browserType = (function getMobileOperatingSystem () {
 
   return 'unknown'
 }())
+
+
+function xs_baseHost() {
+  var base = window.location.protocol+'//' + window.location.hostname
+  if (window.location.port)
+      base += ':' + window.location.port;
+  return base
+}
+function xs_basePath() {
+  return xs_baseHost() + window.location.pathname
+}
