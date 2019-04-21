@@ -169,3 +169,15 @@ function xs_baseHost() {
 function xs_basePath() {
   return xs_baseHost() + window.location.pathname
 }
+
+function xs_vueHookDiv () {
+  Vue.component('hookdiv', {
+    template: `<div><slot></slot></div>`,
+    mounted: function () {
+      this.$emit('mounted')
+    },
+    beforeDestroy: function () {
+      this.$emit('unmounted')
+    }
+  })
+}

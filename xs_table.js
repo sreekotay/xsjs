@@ -249,11 +249,12 @@ function autoDOM (el, options) {
   options.afterRender(el)
 }
 
-function renderTable (el, table) {
+function renderTable (el, table, firstRowHeader) {
   table.includeRowNumber = true
 
   el = $(el)
-  var headers = table.headers
+  var headers = firstRowHeader ? table[0] : table.headers
+  table.headers = headers
   var row_render
   var hfuncs = table.headerFuncs || {
     display: {},
@@ -280,14 +281,14 @@ function renderTable (el, table) {
   // write data
   table.row_render = row_render = table.row_render || []
   if (0) {
-    for (var i = 0; i < table.length; i++) { generateRow(i) }
+    for (var i = firstRowHeader?1:0; i < table.length; i++) { generateRow(i) }
   }
 
   var listView = rows// new infinity.ListView(rows);
 
   // render rows
   if (0) {
-    for (var i = 0; i < row_render.length && i < 10; i++) {
+    for (var i = firstRowHeader?1:0; i < row_render.length && i < 10; i++) {
       row_render[i].dom = true
       listView.append(row_render[i].el)
     }
@@ -322,17 +323,18 @@ function renderTable (el, table) {
     return cdiv.firstChild
   }
   //= ============================ generateRow
-  function generateRow (i) {
+  function generateRow (idx) {
+    var i = idx + (firstRowHeader?1:0)
     if (row_render[i]) return row_render[i].el
     var row = '<div class="xstbl_row">'
     var trow = table[i]
-    if (table.includeRowNumber) { row += '<div class="xstbl_hdr xstbl_rowno">' + (i + 1) + '</div>' }
+    if (table.includeRowNumber) { row += '<div class="xstbl_hdr xstbl_rowno">' + (idx + 1) + '</div>' }
     for (var j = 0; j < headers.length; j++) {
       var h = j// headers[j]
       if (hfuncs.hidden[h]) continue // hidden
       row += '<div class="xstbl_cell xstbl_data' + (hfuncs.class[h] ? +hfuncs.class[h] : '') + '"'
       row += ' data-i="' + i + '" data-j="' + j + '">'
-      if (trow[h] !== undefined) { row += (hfuncs.render[h] ? hfuncs.render[h].call(null, trow[h], j, trow, i, table) : trow[h]) }
+      if (trow && trow[h] !== undefined) { row += (hfuncs.render[h] ? hfuncs.render[h].call(null, trow[h], j, trow, i, table) : trow[h]) }
       row += '</div>'
 
       //if (h>=0) break;

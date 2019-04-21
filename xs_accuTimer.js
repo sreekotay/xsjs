@@ -75,7 +75,7 @@ function accuServer () {
     var retryMax = 100
     var retryMin = 10
     var retryCount = 0
-    var acceptedDelay = 2
+    var acceptedDelay = 4
     var runningNarrow = 0
     var runningMax = 8
     var timeDiff = 0; var timeDiffArr = []
