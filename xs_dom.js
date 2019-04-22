@@ -25,9 +25,10 @@ inView('.pagediv')
     .on('enter', enterView)
     .on('exit', exitView);
 
-scrollIntoView
+scrollIntoView  
 
 */
+
 
 function xs_isObject (o) { return typeof (o) === 'object' && Array.isArray(o) == false }
 function xs_mergeDeep (target, ...sources) {
